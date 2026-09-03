@@ -1,15 +1,23 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
-const { connectDB, getDB } = require('./db');
-
-dotenv.config();
+const { connectDB } = require('./db');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Ensure database connection for requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ error: 'Database connection failed', details: err.message });
+  }
+});
 
 const authRoutes = require('./routes/auth');
 const donorsRoutes = require('./routes/donors');
@@ -26,14 +34,13 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/public', publicRoutes);
 
 app.get('/', (req, res) => {
-  res.send('BloodConnect – Blood Management System');
+  res.send('BloodConnect – Blood Management System Server is Running');
 });
 
-async function start() {
-  await connectDB();
+if (process.env.NODE_ENV !== 'production') {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
 }
 
-start().catch(console.error);
+module.exports = app;

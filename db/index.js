@@ -11,10 +11,9 @@ let db;
 
 async function connectDB() {
   if (db) return db;
-  await client.connect();
-  await client.db('admin').command({ ping: 1 });
+  // await client.connect();
+  // await client.db('admin').command({ ping: 1 });
   db = client.db('bloodconnect');
-  console.log('Connected to MongoDB bloodconnect');
   return db;
 }
 
